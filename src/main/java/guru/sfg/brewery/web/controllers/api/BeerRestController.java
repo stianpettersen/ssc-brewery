@@ -23,6 +23,8 @@ import guru.sfg.brewery.web.model.BeerPagedList;
 import guru.sfg.brewery.web.model.BeerStyleEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -41,10 +43,11 @@ import java.util.UUID;
 @RestController
 public class BeerRestController {
 
+    private static final Logger LOG = LoggerFactory.getLogger(BeerRestController.class);
     private static final Integer DEFAULT_PAGE_NUMBER = 0;
     private static final Integer DEFAULT_PAGE_SIZE = 25;
 
-    private final BeerService beerService;
+    private BeerService beerService;
 
     @GetMapping(produces = { "application/json" }, path = "beer")
     public ResponseEntity<BeerPagedList> listBeers(@RequestParam(value = "pageNumber", required = false) Integer pageNumber,
@@ -53,7 +56,7 @@ public class BeerRestController {
                                                    @RequestParam(value = "beerStyle", required = false) BeerStyleEnum beerStyle,
                                                    @RequestParam(value = "showInventoryOnHand", required = false) Boolean showInventoryOnHand){
 
-        log.debug("Listing Beers");
+        LOG.debug("Listing Beers");
 
         if (showInventoryOnHand == null) {
             showInventoryOnHand = false;
@@ -76,7 +79,7 @@ public class BeerRestController {
     public ResponseEntity<BeerDto> getBeerById(@PathVariable("beerId") UUID beerId,
                                                @RequestParam(value = "showInventoryOnHand", required = false) Boolean showInventoryOnHand){
 
-        log.debug("Get Request for BeerId: " + beerId);
+        LOG.debug("Get Request for BeerId: " + beerId);
 
         if (showInventoryOnHand == null) {
             showInventoryOnHand = false;
