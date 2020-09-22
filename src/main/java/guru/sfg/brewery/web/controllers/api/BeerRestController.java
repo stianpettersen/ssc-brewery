@@ -43,11 +43,10 @@ import java.util.UUID;
 @RestController
 public class BeerRestController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BeerRestController.class);
     private static final Integer DEFAULT_PAGE_NUMBER = 0;
     private static final Integer DEFAULT_PAGE_SIZE = 25;
 
-    private BeerService beerService;
+    private final BeerService beerService;
 
     @GetMapping(produces = { "application/json" }, path = "beer")
     public ResponseEntity<BeerPagedList> listBeers(@RequestParam(value = "pageNumber", required = false) Integer pageNumber,
@@ -56,7 +55,7 @@ public class BeerRestController {
                                                    @RequestParam(value = "beerStyle", required = false) BeerStyleEnum beerStyle,
                                                    @RequestParam(value = "showInventoryOnHand", required = false) Boolean showInventoryOnHand){
 
-        LOG.debug("Listing Beers");
+        log.debug("Listing Beers");
 
         if (showInventoryOnHand == null) {
             showInventoryOnHand = false;
@@ -79,7 +78,7 @@ public class BeerRestController {
     public ResponseEntity<BeerDto> getBeerById(@PathVariable("beerId") UUID beerId,
                                                @RequestParam(value = "showInventoryOnHand", required = false) Boolean showInventoryOnHand){
 
-        LOG.debug("Get Request for BeerId: " + beerId);
+        log.debug("Get Request for BeerId: " + beerId);
 
         if (showInventoryOnHand == null) {
             showInventoryOnHand = false;

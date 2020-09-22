@@ -6,6 +6,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
 import java.util.UUID;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -13,14 +14,31 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest
 public class BeerRestControllerIT extends BaseIT {
 
+    String id = UUID.randomUUID().toString();
+
     @Test
     void deleteBeer() throws Exception {
-        UUID id = UUID.randomUUID();
         mockMvc.perform(
-                delete("/api/v1/beer/" + id.toString())
+                delete("/api/v1/beer/" + id)
                         .header("Api-Key", "spring")
                         .header("Api-Secret", "guru"))
                 .andExpect(status().isOk());
+
+    }
+
+    @Test
+    void deleteBeerHttpBasic() throws Exception {
+        mockMvc.perform(delete("/api/v1/beer/" + id)
+                .with(httpBasic("spring", "guru")))
+                .andExpect(status().is2xxSuccessful());
+
+    }
+
+    @Test
+    void deleteBeerNoAuth() throws Exception {
+        mockMvc.perform(
+                delete("/api/v1/beer/" + id))
+                .andExpect(status().isUnauthorized());
 
     }
 
