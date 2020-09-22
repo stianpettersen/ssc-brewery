@@ -25,9 +25,9 @@ public class PasswordControllerTest {
 
     @Test
     void testBcrypt15() {
-        PasswordEncoder bcrypt15 = new BCryptPasswordEncoder(15);
+        PasswordEncoder bcrypt10 = new BCryptPasswordEncoder(10);
 
-        System.out.println(bcrypt15.encode("tiger"));
+        System.out.println(bcrypt10.encode("tiger"));
     }
 
 

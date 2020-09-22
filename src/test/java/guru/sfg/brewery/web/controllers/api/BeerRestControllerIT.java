@@ -17,6 +17,17 @@ public class BeerRestControllerIT extends BaseIT {
     String id = UUID.randomUUID().toString();
 
     @Test
+    void deleteBeerBadCredentials() throws Exception {
+        mockMvc.perform(
+                delete("/api/v1/beer/" + id)
+                        .header("Api-Key", "spring")
+                        .header("Api-Secret", "wrongpwd"))
+                .andExpect(status().isUnauthorized()
+                );
+
+    }
+
+    @Test
     void deleteBeer() throws Exception {
         mockMvc.perform(
                 delete("/api/v1/beer/" + id)
