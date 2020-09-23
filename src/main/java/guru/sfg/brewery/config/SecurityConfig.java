@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -22,7 +21,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     PasswordEncoder passwordEncoder() {
         return SfgPasswordEncoderFactories.createDelegatingPasswordEncoder();
-        /*return PasswordEncoderFactories.createDelegatingPasswordEncoder();*/
     }
 
     public RestHeaderAuthFilter restHeaderAuthFilter(AuthenticationManager authenticationManager) {
@@ -49,6 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests(authorize -> {
             authorize
                     .antMatchers("/", "/login").permitAll()
+                    .antMatchers("/h2-console/**").permitAll()
                     .antMatchers("/webjars/**", "/resources/**").permitAll()
                     .antMatchers("/beers/find", "/beers*").permitAll()
                     .antMatchers(HttpMethod.GET, "/api/v1/beer/**").permitAll()
@@ -59,39 +58,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .formLogin().and()
                 .httpBasic();
+
+        // H2 console config
+        http.headers().frameOptions().sameOrigin();
     }
-
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
-                .withUser("spring")
-                .password("{bcrypt}$2a$10$LeO4qWYOKPqjgAlAuK/wN.nJXizwry2BP370.rJzxW.8g6aYLxrlO")
-                .roles("ADMIN")
-                .and()
-                .withUser("user")
-                .password("{sha256}e6b1357224ae9b40b8c350379f4751e5e852b50bc8c7280999c92f425260b2c4320fd68bd655d396")
-                .roles("USER")
-                .and()
-                .withUser("scott")
-                .password("{bcrypt10}$2a$10$JRqWted0iDhU9fljjNHtU.Kb3kCprGlq0zRxWfpUo/lNe/hAKu9K6")
-                .roles("CUSTOMER");
-    }
-
-    /*@Override
-    @Bean
-    protected UserDetailsService userDetailsService() {
-        UserDetails admin = User.withDefaultPasswordEncoder()
-                .username("spring")
-                .password("guru")
-                .roles("ADMIN")
-                .build();
-
-        UserDetails user = User.withDefaultPasswordEncoder()
-                .username("user")
-                .password("password")
-                .roles("USER")
-                .build();
-
-        return new InMemoryUserDetailsManager(admin, user);
-    }*/
 }
