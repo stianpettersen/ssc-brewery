@@ -17,6 +17,26 @@ public class BeerRestControllerIT extends BaseIT {
     String id = UUID.randomUUID().toString();
 
     @Test
+    void deleteBeerBadCredentialsUrl() throws Exception {
+        mockMvc.perform(
+                delete("/api/v1/beer/" + id)
+                        .param("apiKey", "spring")
+                        .param("apiSecret", "wrongpwd"))
+                .andExpect(status().isUnauthorized()
+                );
+    }
+
+    @Test
+    void deleteBeerUrl() throws Exception {
+        mockMvc.perform(
+                delete("/api/v1/beer/" + id)
+                        .param("apiKey", "spring")
+                        .param("apiSecret", "guru"))
+                .andExpect(status().isOk());
+
+    }
+
+    @Test
     void deleteBeerBadCredentials() throws Exception {
         mockMvc.perform(
                 delete("/api/v1/beer/" + id)
@@ -24,7 +44,6 @@ public class BeerRestControllerIT extends BaseIT {
                         .header("Api-Secret", "wrongpwd"))
                 .andExpect(status().isUnauthorized()
                 );
-
     }
 
     @Test
