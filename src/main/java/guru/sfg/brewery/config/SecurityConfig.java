@@ -27,6 +27,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/webjars/**", "/resources/**").permitAll()
                     .antMatchers("/beers/find", "/beers*").permitAll()
                     .antMatchers(HttpMethod.GET, "/api/v1/beer/**").permitAll()
+                    .mvcMatchers(HttpMethod.DELETE, "/api/v1/beer/**").hasRole("ADMIN")
                     .mvcMatchers(HttpMethod.GET, "/api/v1/beerUpc/{upc}").permitAll();
         })
                 .authorizeRequests()
