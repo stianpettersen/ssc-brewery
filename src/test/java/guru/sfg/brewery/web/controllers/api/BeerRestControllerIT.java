@@ -8,6 +8,8 @@ import guru.sfg.brewery.web.model.BeerStyleEnum;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -42,25 +44,19 @@ public class BeerRestControllerIT extends BaseIT {
                     .build());
         }
 
+        @ParameterizedTest(name = "#{index} with [{arguments}]")
+        @MethodSource("guru.sfg.brewery.web.controllers.BeerControllerIT#getStreamNotAdmin")
+        void deleteBeerAsAuthenticatedButNotAdmin(String username, String password) throws Exception {
+            mockMvc.perform(delete("/api/v1/beer/" + beerToDelete().getId())
+                    .with(httpBasic(username, password)))
+                    .andExpect(status().isForbidden());
+        }
+
         @Test
-        void deleteBeerHttpBasicAdmin() throws Exception {
+        void deleteBeerAsAdmin() throws Exception {
             mockMvc.perform(delete("/api/v1/beer/" + beerToDelete().getId())
                     .with(httpBasic("spring", "guru")))
                     .andExpect(status().is2xxSuccessful());
-        }
-
-        @Test
-        void deleteBeerHttpBasicUser() throws Exception {
-            mockMvc.perform(delete("/api/v1/beer/" + beerToDelete().getId())
-                    .with(httpBasic("user", "password")))
-                    .andExpect(status().isForbidden());
-        }
-
-        @Test
-        void deleteBeerHttpBasicCustomer() throws Exception {
-            mockMvc.perform(delete("/api/v1/beer/" + beerToDelete().getId())
-                    .with(httpBasic("scott", "tiger")))
-                    .andExpect(status().isForbidden());
         }
 
         @Test
@@ -70,102 +66,61 @@ public class BeerRestControllerIT extends BaseIT {
         }
     }
 
-    @Test
-    void findBeers() throws Exception {
-        mockMvc.perform(get("/api/v1/beer"))
-                .andExpect(status().isUnauthorized());
+    @DisplayName("List Beers")
+    @Nested
+    class ListBeers {
+        @ParameterizedTest(name = "#{index} with [{arguments}]")
+        @MethodSource("guru.sfg.brewery.web.controllers.BeerControllerIT#getStreamAllUsers")
+        void listBeersAuthenticated(String username, String password) throws Exception {
+            mockMvc.perform(get("/api/v1/beer").with(httpBasic(username, password)))
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        void listBeersNotAuthenticated() throws Exception {
+            mockMvc.perform(get("/api/v1/beer"))
+                    .andExpect(status().isUnauthorized());
+        }
     }
 
-    @Test
-    void findBeerByUpcAsAdmin() throws Exception {
+    @DisplayName("Find Beer By Id")
+    @Nested
+    class FindBeerById {
+        @ParameterizedTest(name = "#{index} with [{arguments}]")
+        @MethodSource("guru.sfg.brewery.web.controllers.BeerControllerIT#getStreamAllUsers")
+        void findBeerByIdAuthenticated(String username, String password) throws Exception {
+            Beer beer = beerRepository.findAll().get(0);
+            mockMvc.perform(get("/api/v1/beer/" + beer.getId())
+                    .with(httpBasic(username, password)))
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        void findBeerByIdNotAuthenticated() throws Exception {
+
+            Beer beer = beerRepository.findAll().get(0);
+            mockMvc.perform(get("/api/v1/beer/" + beer.getId()))
+                    .andExpect(status().isUnauthorized());
+        }
+    }
+
+    @DisplayName("Find beer by UPC")
+    @Nested
+    class FindBeerByUpc {
         String id = "0631234200036";
-        mockMvc.perform(get("/api/v1/beerUpc/" + id)
-        .with(httpBasic("spring", "guru")))
-                .andExpect(status().isOk());
-    }
 
-    @Test
-    void findBeerByUpcAsCustomer() throws Exception {
-        String id = "0631234200036";
-        mockMvc.perform(get("/api/v1/beerUpc/" + id)
-        .with(httpBasic("scott", "tiger")))
-                .andExpect(status().isOk());
-    }
+        @ParameterizedTest(name = "#{index} with [{arguments}]")
+        @MethodSource("guru.sfg.brewery.web.controllers.BeerControllerIT#getStreamAllUsers")
+        void findBeerByUpcAuthenticated(String username, String password) throws Exception {
+            mockMvc.perform(get("/api/v1/beerUpc/" + id)
+                    .with(httpBasic(username, password)))
+                    .andExpect(status().isOk());
+        }
 
-    @Test
-    void findBeerByUpcAsUser() throws Exception {
-        String id = "0631234200036";
-        mockMvc.perform(get("/api/v1/beerUpc/" + id)
-        .with(httpBasic("user", "password")))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void findBeerByUpcNoAuth() throws Exception {
-        String id = "0631234200036";
-        mockMvc.perform(get("/api/v1/beerUpc/" + id))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    void findBeerByIdAsAdmin() throws Exception {
-        Beer beer = beerRepository.findAll().get(0);
-
-        mockMvc.perform(get("/api/v1/beer/" + beer.getId())
-                .with(httpBasic("spring", "guru")))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void findBeerByIdAsCustomer() throws Exception {
-        Beer beer = beerRepository.findAll().get(0);
-
-        mockMvc.perform(get("/api/v1/beer/" + beer.getId())
-                .with(httpBasic("scott", "tiger")))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void findBeerByIdAsUser() throws Exception {
-        Beer beer = beerRepository.findAll().get(0);
-
-        mockMvc.perform(get("/api/v1/beer/" + beer.getId())
-                .with(httpBasic("user", "password")))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void findBeerByIdNoAuth() throws Exception {
-        Beer beer = beerRepository.findAll().get(0);
-
-        mockMvc.perform(get("/api/v1/beer/" + beer.getId()))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    void findBeerAsAdmin() throws Exception {
-        mockMvc.perform(get("/beers").param("beerName", "")
-                .with(httpBasic("spring", "guru")))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void findBeerAsCustomer() throws Exception {
-        mockMvc.perform(get("/beers").param("beerName", "")
-                .with(httpBasic("scott", "tiger")))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void findBeerAsUser() throws Exception {
-        mockMvc.perform(get("/beers").param("beerName", "")
-                .with(httpBasic("user", "password")))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void findBeerNoAuth() throws Exception {
-        mockMvc.perform(get("/beers").param("beerName", ""))
-                .andExpect(status().isUnauthorized());
+        @Test
+        void findBeerByUpcNoAuth() throws Exception {
+            mockMvc.perform(get("/api/v1/beerUpc/" + id))
+                    .andExpect(status().isUnauthorized());
+        }
     }
 }
