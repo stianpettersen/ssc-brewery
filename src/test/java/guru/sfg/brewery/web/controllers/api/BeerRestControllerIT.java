@@ -82,8 +82,7 @@ public class BeerRestControllerIT extends BaseIT {
 
     @Test
     void deleteBeerNoAuth() throws Exception {
-        mockMvc.perform(
-                delete("/api/v1/beer/" + id))
+        mockMvc.perform(delete("/api/v1/beer/" + id))
                 .andExpect(status().isUnauthorized());
 
     }
