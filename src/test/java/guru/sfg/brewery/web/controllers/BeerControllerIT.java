@@ -23,13 +23,19 @@ public class BeerControllerIT extends BaseIT {
     @DisplayName("Init New Form")
     @Nested
     class InitNewForm {
-        @ParameterizedTest(name = "#{index} with [{arguments}]")
-        @MethodSource("guru.sfg.brewery.web.controllers.BeerControllerIT#getStreamAllUsers")
-        void initCreationFormAuth(String username, String password) throws Exception {
-            mockMvc.perform(get("/beers/new").with(httpBasic(username, password)))
+        @Test
+        void initCreationFormAuthenticatedAdmin() throws Exception {
+            mockMvc.perform(get("/beers/new").with(httpBasic("spring", "guru")))
                     .andExpect(status().isOk())
                     .andExpect(view().name("beers/createBeer"))
                     .andExpect(model().attributeExists("beer"));
+        }
+
+        @ParameterizedTest(name = "#{index} with [{arguments}]")
+        @MethodSource("guru.sfg.brewery.web.controllers.BeerControllerIT#getStreamNotAdmin")
+        void initCreationFormAuth(String username, String password) throws Exception {
+            mockMvc.perform(get("/beers/new").with(httpBasic(username, password)))
+                    .andExpect(status().isForbidden());
         }
 
         @Test
