@@ -3,7 +3,6 @@ package guru.sfg.brewery.config;
 import guru.sfg.brewery.security.SfgPasswordEncoderFactories;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -26,11 +25,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             authorize
                     .antMatchers("/", "/login").permitAll()
                     .antMatchers("/h2-console/**").permitAll()
-                    .antMatchers("/webjars/**", "/resources/**").permitAll()
-                    .mvcMatchers("/brewery/breweries/")
-                        .hasAnyRole("ADMIN", "CUSTOMER")
-                    .mvcMatchers(HttpMethod.GET, "brewery/api/v1/breweries/**")
-                        .hasAnyRole("ADMIN", "CUSTOMER");
+                    .antMatchers("/webjars/**", "/resources/**").permitAll();
         })
                 .authorizeRequests()
                 .anyRequest().authenticated()
